@@ -1,17 +1,16 @@
 const socketio = require("socket.io");
 
-module.exports = function(server) {
-
+export default function(server) {
     const io = socketio(server, {
         cors: {
         origin: "http://localhost:3000",
         },
     });
     
-    let users = [];
+    let users: any = [];
 
     io.on("connect", (socket) => {
-        console.log("user has connected".cyan.bold);
+        console.log("user has connected");
         socket.on("join", ({ name, friend }) => {
           users.push({ socketId: socket.id, name, friend });
         });
@@ -20,11 +19,12 @@ module.exports = function(server) {
           const personalUser = users.find((user) => user.socketId === socket.id);
       
           const actualReciepientObject = users.find((user) => user.name === friend);
-      
-          io.to(actualReciepientObject.socketId).emit("message", {
-            sentBy: personalUser.name,
-            message,
-          });
+          if (actualReciepientObject) {
+            io.to(actualReciepientObject.socketId).emit("message", {
+              sentBy: personalUser.name,
+              message,
+            });
+          }
       
           io.to(personalUser.socketId).emit("message", {
             sentBy: personalUser.name,
@@ -33,7 +33,7 @@ module.exports = function(server) {
         });
       
         socket.on("disconnect", () => {
-          console.log("user has left".red.bold);
+          console.log("user has left");
           users = users.filter((item) => {
             return item.socketId !== socket.id;
           });
