@@ -1,4 +1,4 @@
-import { PersonalChatSessionUser } from "./types";
+import { PrivateChatSessionUser, PrivateChatMessage, JoinedMessage } from "./types";
 
 const socketio = require("socket.io");
 
@@ -9,17 +9,17 @@ export default function (server) {
     },
   });
 
-  let users: PersonalChatSessionUser[] = [];
+  let users: PrivateChatSessionUser[] = [];
 
   io.on("connect", (socket) => {
     console.log("user has connected");
-    socket.on("join", ({ name, friend }) => {
+    socket.on("join", ({ name, friend }: JoinedMessage) => {
       users.push({ socketId: socket.id, name, friend });
     });
 
-    socket.on("message", ({ friend, message }) => {
-      const personalUser = users.find((user) => user.socketId === socket.id);
+    socket.on("message", ({ friend, message }: PrivateChatMessage) => {
 
+      const personalUser = users.find((user) => user.socketId === socket.id);
       const actualReciepientObject = users.find((user) => user.name === friend);
 
       if (personalUser) {
@@ -41,6 +41,10 @@ export default function (server) {
       users = users.filter((item) => {
         return item.socketId !== socket.id;
       });
+    });
+
+    socket.on('end', function () {
+      socket.disconnect(0);
     });
   });
 }
