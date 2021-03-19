@@ -1,3 +1,4 @@
+import { Socket } from "socket.io";
 import { PrivateChatSessionUser, PrivateChatMessage, JoinedMessage } from "./types";
 
 const socketio = require("socket.io");
@@ -11,7 +12,7 @@ export default function (server) {
 
   let users: PrivateChatSessionUser[] = [];
 
-  io.on("connect", (socket) => {
+  io.on("connect", (socket: Socket) => {
     console.log("user has connected");
     socket.on("join", ({ name, friend }: JoinedMessage) => {
       users.push({ socketId: socket.id, name, friend });
@@ -44,7 +45,7 @@ export default function (server) {
     });
 
     socket.on('end', function () {
-      socket.disconnect(0);
+      socket.disconnect();
     });
   });
 }
