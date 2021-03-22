@@ -8,6 +8,9 @@ import { Strategy as localStrategy} from 'passport-local';
 import User from "./models/user"
 import personalChat from './WebSockets/personalChat';
 import authRoutes from './routes/auth';
+ import messages from "./routes/messages"
+const MongoDBStore = require('connect-mongodb-session')(session);
+
 const app = express();
 const server = http.createServer(app);
 
@@ -56,7 +59,10 @@ passport.deserializeUser((id, cb) => {
 
 
 
-const sessionMiddleware = session({ secret: "secretcode", resave: true, saveUninitialized: true});
+const sessionMiddleware = session({ secret: "secretcode", resave: true, saveUninitialized: true, store: new MongoDBStore({
+  uri: 'mongodb+srv://malachi:123@cluster0.npkqi.mongodb.net/users?retryWrites=true&w=majority',
+  })
+});
 
 app.use(sessionMiddleware);
 app.use(express.json());
@@ -64,11 +70,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/auth", authRoutes)
-
+app.use("/messages", messages)
 
 personalChat(server);
-
-
 
 const PORT = process.env.PORT || 4000;
 
