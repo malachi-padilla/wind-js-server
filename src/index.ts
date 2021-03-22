@@ -19,7 +19,7 @@ const URI = "mongodb+srv://malachi:123@cluster0.npkqi.mongodb.net/users?retryWri
 const OPTS = {
   useUnifiedTopology: true,
   useFindAndModify: false,
-  useNewUrlParser: true,
+  useNewUrlParser: true
 };
 
 mongoose.connect(URI, OPTS, () => {
