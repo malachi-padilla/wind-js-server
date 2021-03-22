@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
-import { PrivateChatSessionUser, PrivateChatMessage, JoinedMessage } from "./types";
+import { PrivateChatSessionUser, JoinedMessage, PrivateChatMessage } from "./types";
 import { Server } from 'http';
+import Message from '../models/message';
 
 const socketio = require("socket.io");
 
@@ -19,22 +20,30 @@ export default function (server: Server): any {
       users.push({ socketId: socket.id, name, friend });
     });
 
-    socket.on("message", ({ friend, message }: PrivateChatMessage) => {
+    socket.on("message", async ({ friend, message }: PrivateChatMessage) => {
 
       const personalUser = users.find((user) => user.socketId === socket.id);
       const actualReciepientObject = users.find((user) => user.name === friend);
-
+      
       if (personalUser) {
-        if (actualReciepientObject) {
-          io.to(actualReciepientObject.socketId).emit("message", {
-            sentBy: personalUser.name,
-            message,
-          });
-        }
-        io.to(personalUser.socketId).emit("message", {
+        const socketMessage:any =  {
           sentBy: personalUser.name,
           message,
+        }
+
+        // Save message to DB
+        const newMessage = new Message({
+          ...socketMessage,
+          recipient: friend
         });
+
+        await newMessage.save();
+
+        if (actualReciepientObject) {
+          io.to(actualReciepientObject.socketId).emit("message", socketMessage);
+        }
+
+        io.to(personalUser.socketId).emit("message", socketMessage);
       }
     });
 
