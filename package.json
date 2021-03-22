@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "nodemon --exec ts-node src/index.ts"
+        "start": "nodemon --exec ts-node src/index.ts",
+        "lint": "./node_modules/.bin/eslint --ext .jsx --ext .js --ext .ts --ext .tsx ./src"
     },
     "keywords": [],
     "author": "",
@@ -23,7 +24,10 @@
     "devDependencies": {
         "@types/express": "^4.17.11",
         "@types/socket.io": "^2.1.13",
+        "@typescript-eslint/eslint-plugin": "^4.18.0",
+        "@typescript-eslint/parser": "^4.18.0",
         "colors": "^1.4.0",
+        "eslint": "^7.22.0",
         "nodemon": "^2.0.7",
         "ts-node": "^9.1.1",
         "typescript": "^4.2.3"
