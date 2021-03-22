@@ -1,7 +1,6 @@
 import { Socket } from "socket.io";
 import { PrivateChatSessionUser, PrivateChatMessage, JoinedMessage } from "./types";
 import { Server } from 'http';
-
 const socketio = require("socket.io");
 
 export default function (server: Server): any {
