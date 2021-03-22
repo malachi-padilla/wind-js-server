@@ -11,7 +11,6 @@ import authRoutes from './routes/auth';
 const app = express();
 const server = http.createServer(app);
 
-
 app.use(cors({origin: "http://localhost:3000", credentials: true}));
 
 const URI = "mongodb+srv://malachi:123@cluster0.npkqi.mongodb.net/users?retryWrites=true&w=majority";
