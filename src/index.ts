@@ -8,7 +8,8 @@ import { Strategy as localStrategy} from 'passport-local';
 import User from "./models/user"
 import personalChat from './WebSockets/personalChat';
 import authRoutes from './routes/auth';
- import messages from "./routes/messages"
+ import messageRoutes from "./routes/messages"
+import userRoutes from './routes/user';
 const MongoDBStore = require('connect-mongodb-session')(session);
 
 const app = express();
@@ -70,7 +71,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/auth", authRoutes)
-app.use("/messages", messages)
+app.use("/user", userRoutes);
+app.use("/messages", messageRoutes)
 
 personalChat(server);
 
