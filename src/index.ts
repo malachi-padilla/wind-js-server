@@ -61,10 +61,10 @@ const sessionMiddleware = session({
   secret: "secretcode",
   resave: true,
   saveUninitialized: true,
-  store: process.env.NODE_ENV === "production" ? new MongoDBStore({
+  store: new MongoDBStore({
     uri:
       "mongodb+srv://malachi:123@cluster0.npkqi.mongodb.net/users?retryWrites=true&w=majority",
-  }) : null,
+  })
 });
 
 app.use(sessionMiddleware);
