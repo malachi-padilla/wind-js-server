@@ -50,13 +50,13 @@ export default function (server: Server): any {
 
       if (recipientSessions.length > 0) {
         // Send message to all active recipient sessions
-        for (let item of recipientSessions) {
+        for (const item of recipientSessions) {
           io.to(item.socketId).emit("message", socketMessage);
         }
       }
 
       // Send message to all active personal user sessions
-      for (let item of personalUserSessions) {
+      for (const item of personalUserSessions) {
         io.to(item.socketId).emit("message", socketMessage);
       }
     });
@@ -70,7 +70,7 @@ export default function (server: Server): any {
 
       if (recipientSessions.length > 0) {
         // Broadcast to all active recipient sessions who is typing, and if they are.
-        for (let item of recipientSessions) {
+        for (const item of recipientSessions) {
           io.to(item.socketId).emit("typing", {
             personTyping: personalUser!.name,
             isTyping,
