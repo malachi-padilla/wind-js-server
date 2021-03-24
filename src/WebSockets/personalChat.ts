@@ -15,19 +15,20 @@ export default function (server: Server): any {
   let users: PrivateChatSessionUser[] = [];
 
   io.on("connect", (socket: Socket) => {
-    console.log("user has connected");
     socket.on("join", ({ name, friend }: JoinedMessage) => {
       users.push({ socketId: socket.id, name, friend });
     });
 
     socket.on("message", async ({ friend, message }: PrivateChatMessage) => {
-
-      const personalUser = users.find((user) => user.socketId === socket.id);
-      const actualReciepientObject = users.find((user) => user.name === friend);
       
-      if (personalUser) {
+      const personalUser = users.find((user) => user.socketId === socket.id);
+
+      const personalUserSessions = users.filter(user => personalUser!.name === user.name)
+      const recipientSessions = users.filter((user) => user.name === friend);
+      
+      if (personalUserSessions.length > 0) {
         const socketMessage:any =  {
-          sentBy: personalUser.name,
+          sentBy: personalUserSessions[0].name,
           message,
         }
 
@@ -39,16 +40,30 @@ export default function (server: Server): any {
 
         await newMessage.save();
 
-        if (actualReciepientObject) {
-          io.to(actualReciepientObject.socketId).emit("message", socketMessage);
+        if (recipientSessions.length > 0) {
+          for (let item of recipientSessions) {
+            io.to(item.socketId).emit("message", socketMessage);
+          }
         }
 
-        io.to(personalUser.socketId).emit("message", socketMessage);
+        for (let item of personalUserSessions) {
+          io.to(item.socketId).emit("message", socketMessage);
+        }
       }
     });
 
+    socket.on("typing", ({ friend, isTyping }) => {
+      const personalUser = users.find((user) => user.socketId === socket.id);
+      const actualReciepientObject = users.filter((user) => user.name === friend);
+
+        if (actualReciepientObject.length > 0) {
+          for (let item of actualReciepientObject) {
+            io.to(item.socketId).emit("typing", { personTyping: personalUser!.name, isTyping });
+          }
+      }
+    })
+
     socket.on("disconnect", () => {
-      console.log("user has left");
       users = users.filter((item) => {
         return item.socketId !== socket.id;
       });
