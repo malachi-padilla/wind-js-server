@@ -1,7 +1,11 @@
 import { Socket } from "socket.io";
-import { PrivateChatSessionUser, JoinedMessage, PrivateChatMessage } from "./types";
-import { Server } from 'http';
-import Message from '../models/message';
+import {
+  PrivateChatSessionUser,
+  JoinedMessage,
+  PrivateChatMessage,
+} from "./types";
+import { Server } from "http";
+import Message from "../models/message";
 
 const socketio = require("socket.io");
 
@@ -20,48 +24,60 @@ export default function (server: Server): any {
     });
 
     socket.on("message", async ({ friend, message }: PrivateChatMessage) => {
-      
+      // Find personal user by socket connection
       const personalUser = users.find((user) => user.socketId === socket.id);
 
-      const personalUserSessions = users.filter(user => personalUser!.name === user.name)
+      // Find all sessions of personal user by username
+      const personalUserSessions = users.filter(
+        (user) => personalUser!.name === user.name
+      );
+
+      // Find all recipient sessions by username
       const recipientSessions = users.filter((user) => user.name === friend);
-      
-      if (personalUserSessions.length > 0) {
-        const socketMessage:any =  {
-          sentBy: personalUserSessions[0].name,
-          message,
-        }
 
-        // Save message to DB
-        const newMessage = new Message({
-          ...socketMessage,
-          recipient: friend
-        });
+      const socketMessage: any = {
+        sentBy: personalUserSessions[0].name,
+        message,
+      };
 
-        await newMessage.save();
+      // Save message to DB
+      const newMessage = new Message({
+        ...socketMessage,
+        recipient: friend,
+      });
 
-        if (recipientSessions.length > 0) {
-          for (let item of recipientSessions) {
-            io.to(item.socketId).emit("message", socketMessage);
-          }
-        }
+      await newMessage.save();
 
-        for (let item of personalUserSessions) {
+      if (recipientSessions.length > 0) {
+        // Send message to all active recipient sessions
+        for (let item of recipientSessions) {
           io.to(item.socketId).emit("message", socketMessage);
         }
+      }
+
+      // Send message to all active personal user sessions
+      for (let item of personalUserSessions) {
+        io.to(item.socketId).emit("message", socketMessage);
       }
     });
 
     socket.on("typing", ({ friend, isTyping }) => {
+      // Find personal user session by socket id
       const personalUser = users.find((user) => user.socketId === socket.id);
-      const actualReciepientObject = users.filter((user) => user.name === friend);
 
-        if (actualReciepientObject.length > 0) {
-          for (let item of actualReciepientObject) {
-            io.to(item.socketId).emit("typing", { personTyping: personalUser!.name, isTyping });
-          }
+      // Cop all recipient sessions by username
+      const recipientSessions = users.filter((user) => user.name === friend);
+
+      if (recipientSessions.length > 0) {
+        // Broadcast to all active recipient sessions who is typing, and if they are.
+        for (let item of recipientSessions) {
+          io.to(item.socketId).emit("typing", {
+            personTyping: personalUser!.name,
+            isTyping,
+          });
+        }
       }
-    })
+    });
 
     socket.on("disconnect", () => {
       users = users.filter((item) => {
@@ -69,7 +85,7 @@ export default function (server: Server): any {
       });
     });
 
-    socket.on('end', function () {
+    socket.on("end", function () {
       socket.disconnect();
     });
   });

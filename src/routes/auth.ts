@@ -19,7 +19,6 @@ router.post("/login", passport.authenticate("local"), (_req, res) => {
 });
 
 router.get("/user", (req: any, res) => {
-  console.log(req.user  );
   if (req.user) {
     res.send(req.user);
   } else {
