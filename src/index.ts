@@ -5,11 +5,13 @@ import express from "express";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as localStrategy } from "passport-local";
-import User from "./models/user";
+import User from "./models/user/user";
 import personalChat from "./WebSockets/personalChat";
 import authRoutes from "./routes/auth";
 import messageRoutes from "./routes/messages";
 import userRoutes from "./routes/user";
+import friendRoutes from './routes/friends'
+import { createPersonalFacingUser } from "./utils/utilFunctions";
 const MongoDBStore = require("connect-mongodb-session")(session);
 
 const app = express();
@@ -48,12 +50,8 @@ passport.serializeUser((user, cb) => {
 
 passport.deserializeUser((id, cb) => {
   User.findOne({ _id: id }, (err, user) => {
-    // the public facing information
-    const userInformation = {
-      userId: user._id,
-      username: user.username,
-    };
-    cb(err, userInformation);
+    // Sednd public facing information only
+    cb(err, createPersonalFacingUser(user));
   });
 });
 
@@ -75,6 +73,7 @@ app.use(passport.session());
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/messages", messageRoutes);
+app.use("/friends", friendRoutes);
 
 personalChat(server);
 
