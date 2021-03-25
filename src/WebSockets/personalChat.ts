@@ -5,7 +5,7 @@ import {
   PrivateChatMessage,
 } from "./types";
 import { Server } from "http";
-import Message from "../models/message";
+import Message from "../models/message/message";
 
 const socketio = require("socket.io");
 
