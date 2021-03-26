@@ -4,12 +4,14 @@ export function isLoggedInMiddleware(): void {
   // Fill Out Later
 }
 
-export async function lastOnlineMiddleware(req, _, next) {
+export async function updateLastOnline(req, _, __) {
   // update last online in database then continue
   if (req.user) {
     await User.findByIdAndUpdate(req.user.userId, { lastOnline: Date.now() });
   }
-  next();
 }
 
-// Make middleware that combines isLoggedIn and lastOnline when ready.
+export async function generalMiddleware(req, res, next) {
+  await updateLastOnline(req,res,next)
+  next();
+}

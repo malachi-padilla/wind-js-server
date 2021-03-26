@@ -1,9 +1,9 @@
 import express from "express";
-import { lastOnlineMiddleware } from "../middleware/auth";
+import { generalMiddleware } from "../middleware/auth";
 const router = express.Router();
 import Message from "../models/message/message";
 
-router.get("/getMessages", lastOnlineMiddleware, async (req, res) => {
+router.get("/getMessages", generalMiddleware, async (req, res) => {
   const { user1, user2 } = req.query;
   await Message.find({
     $or: [
