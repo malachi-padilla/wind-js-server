@@ -2,8 +2,9 @@ import express from "express";
 import { createPublicFacingUser } from "../utils/utilFunctions";
 const router = express.Router();
 import User from "../models/user/user";
+import { generalMiddleware } from "../middleware/auth";
 
-router.get("/:userId", async (req, res) => {
+router.get("/:userId", generalMiddleware, async (req, res) => {
   const { userId } = req.params;
   User.findById(userId, (err, doc) => {
     if (err) {
@@ -19,7 +20,7 @@ router.get("/:userId", async (req, res) => {
   });
 });
 
-router.get("/", async (req, res) => {
+router.get("/", generalMiddleware, async (req, res) => {
   const { username } = req.query;
 
   User.findOne({ username }, (err, doc) => {
@@ -36,4 +37,5 @@ router.get("/", async (req, res) => {
     }
   });
 });
+
 export default router;

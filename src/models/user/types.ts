@@ -7,11 +7,13 @@ export interface PersonalApplicationUser {
     sentFriendRequests: string[];
     recievedFriendRequests: string[];
     friends: string[];
-    username: string
+    username: string;
+    lastOnline: Date;
 }
 
 export interface PublicApplicationUser {
     userId: string;
     friends: string[];
     username: string
+    lastOnline: Date;
 }

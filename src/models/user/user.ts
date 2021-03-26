@@ -17,6 +17,11 @@ const user = new mongoose.Schema({
     type: Array,
     required: false,
     default: [],
-  }
+  },
+  lastOnline: {
+    type: Date,
+    required: false,
+    default: Date.now(),
+  },
 });
 export default mongoose.model("User", user);

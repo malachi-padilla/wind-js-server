@@ -4,8 +4,9 @@ import { createPublicFacingUser } from "../utils/utilFunctions";
 // import { PublicApplicationUser } from "models/types";
 const router = express.Router();
 import User from "../models/user/user";
+import { generalMiddleware } from "../middleware/auth";
 
-router.post("/friendRequest", async (req, res) => {
+router.post("/friendRequest", generalMiddleware, async (req, res) => {
   // User 1 Is Requesting User 2:
   try {
     const { user1, user2 } = req.body;
@@ -61,7 +62,7 @@ router.post("/friendRequest", async (req, res) => {
   }
 });
 
-router.delete("/friendRequest", async (req, res) => {
+router.delete("/friendRequest", generalMiddleware, async (req, res) => {
   // User 1 Is Requesting To Unfriend User 2:
   try {
     const { user1, user2 } = req.body;
@@ -113,7 +114,7 @@ router.delete("/friendRequest", async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/", generalMiddleware, async (req, res) => {
   // Get all friends of user
   try {
     const { user } = req.query;
