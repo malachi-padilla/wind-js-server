@@ -10,7 +10,7 @@ import personalChat from "./WebSockets/personalChat";
 import authRoutes from "./routes/auth";
 import messageRoutes from "./routes/messages";
 import userRoutes from "./routes/user";
-import friendRoutes from './routes/friends'
+import friendRoutes from "./routes/friends";
 import { createPersonalFacingUser } from "./utils/utilFunctions";
 const MongoDBStore = require("connect-mongodb-session")(session);
 
@@ -34,9 +34,10 @@ mongoose.connect(URI, OPTS, () => {
 
 passport.use(
   new localStrategy((username, password, done) => {
-    User.findOne({ username }, (_err, doc) => {
+    User.findOne({ username }, async (_err, doc) => {
       if (doc) {
         if (doc.password == password) {
+          await User.findOneAndUpdate({ username }, { lastOnline: Date.now() });
           return done(null, doc);
         }
       }
@@ -62,7 +63,7 @@ const sessionMiddleware = session({
   store: new MongoDBStore({
     uri:
       "mongodb+srv://malachi:123@cluster0.npkqi.mongodb.net/users?retryWrites=true&w=majority",
-  })
+  }),
 });
 
 app.use(sessionMiddleware);

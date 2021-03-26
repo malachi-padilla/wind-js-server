@@ -1,6 +1,6 @@
-import express from 'express';
-import User from '../models/user/user';
-import passport from 'passport';
+import express from "express";
+import User from "../models/user/user";
+import passport from "passport";
 const router = express.Router();
 
 router.post("/register", async (req, res) => {

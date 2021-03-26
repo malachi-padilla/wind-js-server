@@ -1,15 +1,15 @@
 export interface PrivateChatSessionUser {
-    socketId: string;
-    name: string;
-    friend: string;
+  socketId: string;
+  name: string;
+  friend: string;
 }
 
 export interface PrivateChatMessage {
-    friend: string;
-    message: string;
+  friend: string;
+  message: string;
 }
 
 export interface JoinedMessage {
-    name: string;
-    friend: string;
+  name: string;
+  friend: string;
 }
