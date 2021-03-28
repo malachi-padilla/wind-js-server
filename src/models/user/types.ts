@@ -3,17 +3,18 @@
 // Internal -> only the server can see this, not even administrators. Ex (Passwords ETC)
 
 export interface PersonalApplicationUser {
-    userId: string;
-    sentFriendRequests: string[];
-    recievedFriendRequests: string[];
-    friends: string[];
-    username: string;
-    lastOnline: Date;
+  userId: string;
+  sentFriendRequests: string[];
+  recievedFriendRequests: string[];
+  friends: string[];
+  username: string;
+  lastOnline: Date;
 }
 
 export interface PublicApplicationUser {
-    userId: string;
-    friends: string[];
-    username: string
-    lastOnline: Date;
+  userId: string;
+  relation?: string;
+  friends: string[];
+  username: string;
+  lastOnline: Date;
 }

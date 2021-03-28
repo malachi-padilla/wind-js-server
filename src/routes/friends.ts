@@ -114,7 +114,7 @@ router.delete("/friendRequest", generalMiddleware, async (req, res) => {
   }
 });
 
-router.get("/", generalMiddleware, async (req, res) => {
+router.get("/", generalMiddleware, async (req: any, res) => {
   // Get all friends of user
   try {
     const { user } = req.query;
@@ -134,7 +134,11 @@ router.get("/", generalMiddleware, async (req, res) => {
                   "Friend doesn't exist, please contact administrators for help"
                 );
             } else {
-              friendsArr.push(createPublicFacingUser(user));
+              const publicFacingUser = await createPublicFacingUser(
+                user,
+                req.user
+              );
+              friendsArr.push(publicFacingUser);
             }
           }
           res.send(friendsArr);
