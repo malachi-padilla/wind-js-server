@@ -3,6 +3,8 @@ import {
   PrivateChatSessionUser,
   JoinedMessage,
   PrivateChatMessage,
+  GeneralSessionUsers,
+  JoinedPrivateChatMessage,
 } from "./types";
 import { Server } from "http";
 import Message from "../models/message/message";
@@ -16,24 +18,44 @@ export default function (server: Server): any {
     },
   });
 
-  let users: PrivateChatSessionUser[] = [];
+  let privateMessagingUsers: PrivateChatSessionUser[] = [];
+  let generalUsers: GeneralSessionUsers[] = [];
 
   io.on("connect", (socket: Socket) => {
-    socket.on("join", ({ name, friend }: JoinedMessage) => {
-      users.push({ socketId: socket.id, name, friend });
+    socket.on(
+      "joinPrivateMessage",
+      ({ name, friend }: JoinedPrivateChatMessage) => {
+        privateMessagingUsers.push({ socketId: socket.id, name, friend });
+      }
+    );
+
+    socket.on("join", ({ name }: JoinedMessage) => {
+      generalUsers.push({ socketId: socket.id, name });
     });
 
     socket.on("message", async ({ friend, message }: PrivateChatMessage) => {
       // Find personal user by socket connection
-      const personalUser = users.find((user) => user.socketId === socket.id);
+      const personalUser = privateMessagingUsers.find(
+        (user) => user.socketId === socket.id
+      );
 
       // Find all sessions of personal user by username
-      const personalUserSessions = users.filter(
+      const personalUserSessions = privateMessagingUsers.filter(
         (user) => personalUser!.name === user.name
       );
 
       // Find all recipient sessions by username
-      const recipientSessions = users.filter((user) => user.name === friend);
+      let recipientSessions:
+        | PrivateChatSessionUser[]
+        | GeneralSessionUsers[] = privateMessagingUsers.filter(
+        (user) => user.name === friend
+      );
+      if (recipientSessions.length === 0) {
+        // No Sessions so Convert to General Session
+        recipientSessions = generalUsers.filter((user) => {
+          return user.name === friend;
+        });
+      }
 
       const socketMessage: any = {
         sentBy: personalUserSessions[0].name,
@@ -63,10 +85,14 @@ export default function (server: Server): any {
 
     socket.on("typing", ({ friend, isTyping }) => {
       // Find personal user session by socket id
-      const personalUser = users.find((user) => user.socketId === socket.id);
+      const personalUser = privateMessagingUsers.find(
+        (user) => user.socketId === socket.id
+      );
 
       // Cop all recipient sessions by username
-      const recipientSessions = users.filter((user) => user.name === friend);
+      const recipientSessions = privateMessagingUsers.filter(
+        (user) => user.name === friend
+      );
 
       if (recipientSessions.length > 0) {
         // Broadcast to all active recipient sessions who is typing, and if they are.
@@ -80,7 +106,10 @@ export default function (server: Server): any {
     });
 
     socket.on("disconnect", () => {
-      users = users.filter((item) => {
+      privateMessagingUsers = privateMessagingUsers.filter((item) => {
+        return item.socketId !== socket.id;
+      });
+      generalUsers = generalUsers.filter((item) => {
         return item.socketId !== socket.id;
       });
     });

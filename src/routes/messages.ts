@@ -23,3 +23,33 @@ router.get("/getMessages", generalMiddleware, async (req, res) => {
 });
 
 export default router;
+
+router.get("/recentlyMessaged", async (req, res) => {
+  // get last 10 recently messaged from username
+  const { user } = req.query;
+
+  const information = await Message.aggregate([
+    {
+      $match: { $or: [{ sentBy: user }, { recipient: user }] },
+    },
+    {
+      $group: {
+        _id: { recipient: "$recipient", sentBy: "$sentBy" },
+        date: { $max: "$createdAt" },
+      },
+    },
+    { $sort: { date: -1 } },
+  ]);
+
+  const revisedInformation = information.map((item) => {
+    if (item._id.sentBy === user) {
+      return item._id.recipient;
+    } else {
+      return item._id.sentBy;
+    }
+  });
+
+  const uniq = [...new Set(revisedInformation)];
+
+  res.send(uniq);
+});
