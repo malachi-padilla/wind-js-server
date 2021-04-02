@@ -14,8 +14,19 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", passport.authenticate("local"), (_req, res) => {
-  res.send("success");
+router.post("/login", (req: any, res, next) => {
+  passport.authenticate("local", function (err, user, info) {
+    console.log(info);
+    if (err) return next(err);
+    if (user) {
+      req.logIn(user, function () {
+        res.send("success");
+      });
+      // Register failed, flash message is in info
+    } else {
+      res.status(400).json(info);
+    }
+  })(req, res, next);
 });
 
 router.get("/user", (req: any, res) => {
