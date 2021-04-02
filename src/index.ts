@@ -39,7 +39,11 @@ passport.use(
         if (doc.password == password) {
           await User.findOneAndUpdate({ username }, { lastOnline: Date.now() });
           return done(null, doc);
+        } else {
+          return done(null, false, "bad-password");
         }
+      } else {
+        return done(null, false, "bad-username");
       }
     });
   })

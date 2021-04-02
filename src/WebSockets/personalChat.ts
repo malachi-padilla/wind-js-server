@@ -114,6 +114,12 @@ export default function (server: Server): any {
       });
     });
 
+    socket.on("disconnectPrivateMessage", () => {
+      privateMessagingUsers = privateMessagingUsers.filter((item) => {
+        return item.socketId !== socket.id;
+      });
+    });
+
     socket.on("end", function () {
       socket.disconnect();
     });
