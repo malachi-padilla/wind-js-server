@@ -25,11 +25,13 @@ export default function (server: Server): any {
     socket.on(
       "joinPrivateMessage",
       ({ name, friend }: JoinedPrivateChatMessage) => {
+        console.log("Joining Private Message Bro");
         privateMessagingUsers.push({ socketId: socket.id, name, friend });
       }
     );
 
     socket.on("join", ({ name }: JoinedMessage) => {
+      console.log("User Joining General Users");
       generalUsers.push({ socketId: socket.id, name });
     });
 
@@ -112,6 +114,15 @@ export default function (server: Server): any {
       generalUsers = generalUsers.filter((item) => {
         return item.socketId !== socket.id;
       });
+    });
+
+    socket.on("disconnectPrivateMessage", () => {
+      console.log("Disconnecting Private Message");
+      console.log(privateMessagingUsers);
+      privateMessagingUsers = privateMessagingUsers.filter((item) => {
+        return item.socketId !== socket.id;
+      });
+      console.log(privateMessagingUsers);
     });
 
     socket.on("end", function () {
