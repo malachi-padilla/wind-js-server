@@ -12,12 +12,23 @@ import messageRoutes from "./routes/messages";
 import userRoutes from "./routes/user";
 import friendRoutes from "./routes/friends";
 import { createPersonalFacingUser } from "./utils/utilFunctions";
+import dotenv from "dotenv";
+
+dotenv.config();
 const MongoDBStore = require("connect-mongodb-session")(session);
 
 const app = express();
 const server = http.createServer(app);
 
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? "https://clever-hodgkin-3d6d23.netlify.app"
+        : "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 const URI =
   "mongodb+srv://malachi:123@cluster0.npkqi.mongodb.net/users?retryWrites=true&w=majority";
