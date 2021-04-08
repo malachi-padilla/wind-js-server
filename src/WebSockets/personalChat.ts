@@ -8,13 +8,17 @@ import {
 } from "./types";
 import { Server } from "http";
 import Message from "../models/message/message";
+import { CLIENT_URL } from "config/globalVariables";
 
 const socketio = require("socket.io");
 
 export default function (server: Server): any {
   const io = socketio(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin:
+        process.env.NODE_ENV === "production"
+          ? CLIENT_URL
+          : "http://localhost:3000",
     },
   });
 
