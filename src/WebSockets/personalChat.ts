@@ -14,7 +14,10 @@ const socketio = require("socket.io");
 export default function (server: Server): any {
   const io = socketio(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin:
+        process.env.NODE_ENV === "production"
+          ? "https://modest-yonath-f1151e.netlify.app"
+          : "http://localhost:3000",
     },
   });
 
