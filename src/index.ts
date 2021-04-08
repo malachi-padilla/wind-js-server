@@ -24,7 +24,7 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? "https://clever-hodgkin-3d6d23.netlify.app"
+        ? "https://606f4430b65293391354e0f5--modest-yonath-f1151e.netlify.app"
         : "http://localhost:3000",
     credentials: true,
   })
