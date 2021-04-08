@@ -13,7 +13,7 @@ import userRoutes from "./routes/user";
 import friendRoutes from "./routes/friends";
 import { createPersonalFacingUser } from "./utils/utilFunctions";
 import dotenv from "dotenv";
-import { CLIENT_URL } from "config/globalVariables";
+import { CLIENT_URL } from "./config/globalVariables";
 
 dotenv.config();
 const MongoDBStore = require("connect-mongodb-session")(session);

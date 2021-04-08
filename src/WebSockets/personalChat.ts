@@ -8,7 +8,7 @@ import {
 } from "./types";
 import { Server } from "http";
 import Message from "../models/message/message";
-import { CLIENT_URL } from "config/globalVariables";
+import { CLIENT_URL } from "../config/globalVariables";
 
 const socketio = require("socket.io");
 
