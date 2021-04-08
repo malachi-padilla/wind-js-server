@@ -13,6 +13,7 @@ import userRoutes from "./routes/user";
 import friendRoutes from "./routes/friends";
 import { createPersonalFacingUser } from "./utils/utilFunctions";
 import dotenv from "dotenv";
+import { CLIENT_URL } from "config/globalVariables";
 
 dotenv.config();
 const MongoDBStore = require("connect-mongodb-session")(session);
@@ -26,7 +27,7 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? "https://modest-yonath-f1151e.netlify.app"
+        ? CLIENT_URL
         : "http://localhost:3000",
     credentials: true,
   })

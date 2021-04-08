@@ -8,6 +8,7 @@ import {
 } from "./types";
 import { Server } from "http";
 import Message from "../models/message/message";
+import { CLIENT_URL } from "config/globalVariables";
 
 const socketio = require("socket.io");
 
@@ -16,7 +17,7 @@ export default function (server: Server): any {
     cors: {
       origin:
         process.env.NODE_ENV === "production"
-          ? "https://modest-yonath-f1151e.netlify.app"
+          ? CLIENT_URL
           : "http://localhost:3000",
     },
   });
