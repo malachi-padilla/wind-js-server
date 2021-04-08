@@ -20,6 +20,8 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 const app = express();
 const server = http.createServer(app);
 
+app.set("trust proxy", 1);
+
 app.use(
   cors({
     origin:
@@ -79,6 +81,11 @@ const sessionMiddleware = session({
     uri:
       "mongodb+srv://malachi:123@cluster0.npkqi.mongodb.net/users?retryWrites=true&w=majority",
   }),
+  cookie: {
+    sameSite: "none",
+    secure: true,
+    maxAge: 1000 * 60 * 60 * 24 * 7, // One Week
+  },
 });
 
 app.use(sessionMiddleware);
