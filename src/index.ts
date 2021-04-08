@@ -26,7 +26,7 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? "https://606f4430b65293391354e0f5--modest-yonath-f1151e.netlify.app"
+        ? "https://modest-yonath-f1151e.netlify.app"
         : "http://localhost:3000",
     credentials: true,
   })
