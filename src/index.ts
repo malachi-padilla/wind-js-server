@@ -83,8 +83,8 @@ const sessionMiddleware = session({
       "mongodb+srv://malachi:123@cluster0.npkqi.mongodb.net/users?retryWrites=true&w=majority",
   }),
   cookie: {
-    sameSite: "none",
-    secure: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : undefined,
+    secure: process.env.NODE_ENV === "production" ? true : undefined,
     maxAge: 1000 * 60 * 60 * 24 * 7, // One Week
   },
 });
