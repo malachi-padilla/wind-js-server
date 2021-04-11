@@ -1,7 +1,11 @@
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { s3 } from "../index";
 import {
   PersonalApplicationUser,
   PublicApplicationUser,
 } from "models/user/types";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
 // Take a MongoDB Document and Spit Out Public Facing Data.
 export async function createPublicFacingUser(
   mongoDBDocument: any,
@@ -28,6 +32,7 @@ export async function createPublicFacingUser(
       username: mongoDBDocument.username,
       lastOnline: mongoDBDocument.lastOnline,
       relation,
+      profilePicture: mongoDBDocument.profilePicture,
     });
   });
 }
@@ -42,5 +47,22 @@ export function createPersonalFacingUser(
     sentFriendRequests: mongoDBDocument.sentFriendRequests,
     recievedFriendRequests: mongoDBDocument.recievedFriendRequests,
     lastOnline: mongoDBDocument.lastOnline,
+    profilePicture: mongoDBDocument.profilePicture,
   };
+}
+
+export function generateS3BucketUrl(bucketName, bucketKey) {
+  return new Promise(async (resolve, reject) => {
+    const params = {
+      Bucket: bucketName,
+      Key: bucketKey,
+      Expires: 120, // 2 minutes
+    };
+    const command = new GetObjectCommand(params);
+    getSignedUrl(s3, command, { expiresIn: 3600 })
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => reject(error));
+  });
 }

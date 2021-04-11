@@ -14,6 +14,7 @@ import friendRoutes from "./routes/friends";
 import { createPersonalFacingUser } from "./utils/utilFunctions";
 import dotenv from "dotenv";
 import { CLIENT_URL } from "./config/globalVariables";
+import { S3Client } from "@aws-sdk/client-s3";
 
 dotenv.config();
 const MongoDBStore = require("connect-mongodb-session")(session);
@@ -88,6 +89,7 @@ const sessionMiddleware = session({
     maxAge: 1000 * 60 * 60 * 24 * 7, // One Week
   },
 });
+export const s3 = new S3Client({ region: "us-west-1" });
 
 app.use(sessionMiddleware);
 app.use(express.json());

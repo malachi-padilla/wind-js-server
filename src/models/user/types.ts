@@ -9,6 +9,7 @@ export interface PersonalApplicationUser {
   friends: string[];
   username: string;
   lastOnline: Date;
+  profilePicture: string;
 }
 
 export interface PublicApplicationUser {
@@ -17,4 +18,5 @@ export interface PublicApplicationUser {
   friends: string[];
   username: string;
   lastOnline: Date;
+  profilePicture: string;
 }
