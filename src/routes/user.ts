@@ -44,52 +44,58 @@ router.post(
     "avatar"
   ),
   async (req: any, res) => {
-    const { userId } = req.body;
-
-    const KEY_NAME = `userAvatar/${req.file.originalname}`;
-    const BUCKET_NAME = "wind-profile-pictures";
-
-    var params = {
-      Bucket: BUCKET_NAME,
-      Body: fs.createReadStream(req.file.path),
-      Key: KEY_NAME,
-    };
-
     try {
-      await s3.send(new PutObjectCommand(params));
-      await User.findByIdAndUpdate(userId, { profilePicture: KEY_NAME });
-    } catch (err) {
-      console.log("Error", err);
+      const { userId } = req.body;
+      const KEY_NAME = `userAvatar/${req.file.originalname}`;
+
+      var params = {
+        Bucket: process.env.PROFILE_PICTURES_BUCKET,
+        Body: fs.createReadStream(req.file.path),
+        Key: KEY_NAME,
+      };
+
+      try {
+        await s3.send(new PutObjectCommand(params));
+        await User.findByIdAndUpdate(userId, { profilePicture: KEY_NAME });
+      } catch (err) {
+        res.status(400).send("Couldn't Save to S3");
+      }
+      fs.unlinkSync(req.file.path); // Empty temp folder
+      res.send("Successfully Uploaded Image");
+    } catch (e) {
+      console.log(e);
+      res.status(400).send("Error with Upload");
     }
-    fs.unlinkSync(req.file.path); // Empty temp folder
-    res.send("success");
   }
 );
 
 router.get("/getProfilePicture", async (req, res) => {
-  const { userId, username } = req.query;
+  try {
+    const { userId, username } = req.query;
 
-  let user: any;
-  if (username) {
-    user = await User.findOne({ username });
-  } else if (userId) {
-    user = await User.findById(userId);
-  }
+    let user: any;
+    if (username) {
+      user = await User.findOne({ username });
+    } else if (userId) {
+      user = await User.findById(userId);
+    }
 
-  const profilePicture = user.profilePicture;
+    const profilePicture = user.profilePicture;
 
-  console.log(profilePicture);
-  if (profilePicture && profilePicture !== "") {
-    generateS3BucketUrl(process.env.PROFILE_PICTURES_BUCKET, profilePicture)
-      .then((url) => {
-        res.send(url);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(400).send("Error");
-      });
-  } else {
-    res.send("https://source.unsplash.com/random");
+    if (profilePicture && profilePicture !== "") {
+      generateS3BucketUrl(process.env.PROFILE_PICTURES_BUCKET, profilePicture)
+        .then((url) => {
+          res.send(url);
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(400).send("Error");
+        });
+    } else {
+      res.send("https://source.unsplash.com/random");
+    }
+  } catch (e) {
+    res.status(400).send("Error fetching user");
   }
 });
 

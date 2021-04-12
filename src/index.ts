@@ -69,9 +69,9 @@ passport.serializeUser((user, cb) => {
 });
 
 passport.deserializeUser((id, cb) => {
-  User.findOne({ _id: id }, (err, user) => {
+  User.findOne({ _id: id }, async (err, user) => {
     // Sednd public facing information only
-    cb(err, createPersonalFacingUser(user));
+    cb(err, await createPersonalFacingUser(user));
   });
 });
 

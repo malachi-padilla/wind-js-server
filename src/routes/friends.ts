@@ -152,4 +152,41 @@ router.get("/", generalMiddleware, async (req: any, res) => {
   }
 });
 
+router.get("/getMutualFriends", async (req, res) => {
+  // Get Mutual Friends between User1 and User2
+  try {
+    const { user1, user2 } = req.query;
+    await User.findById(user1, async (err, doc) => {
+      if (err) {
+        res.status(400).send("Error getting user");
+      } else {
+        if (doc) {
+          User.findById(user2, async (err, doc2) => {
+            if (err) {
+              res.status(400).send("Error getting user");
+            }
+            const user1Friends = doc.friends;
+            const user2Friends = doc2.friends;
+
+            const mutual = user2Friends.filter((item) =>
+              user1Friends.includes(item)
+            );
+            const promises = mutual.map(async (item) => {
+              const user = await User.findById(item);
+              return await createPublicFacingUser(user);
+            });
+
+            const mutualFriends = await Promise.all(promises);
+            res.send(mutualFriends);
+          });
+        } else {
+          res.status(404).send("Not Found");
+        }
+      }
+    });
+  } catch (e) {
+    res.status(422).send("Sorry, Bad Input.");
+  }
+});
+
 export default router;
