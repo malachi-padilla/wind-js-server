@@ -4,17 +4,15 @@ import cors from "cors";
 import express from "express";
 import session from "express-session";
 import passport from "passport";
-import { Strategy as localStrategy } from "passport-local";
-import User from "./models/user/user";
 import personalChat from "./WebSockets/personalChat";
 import authRoutes from "./routes/auth";
 import messageRoutes from "./routes/messages";
 import userRoutes from "./routes/user";
 import friendRoutes from "./routes/friends";
-import { createPersonalFacingUser } from "./utils/utilFunctions";
 import dotenv from "dotenv";
 import { CLIENT_URL } from "./config/globalVariables";
 import { S3Client } from "@aws-sdk/client-s3";
+import { passportConfiguration } from "./config/passport";
 
 dotenv.config();
 const MongoDBStore = require("connect-mongodb-session")(session);
@@ -47,33 +45,7 @@ mongoose.connect(URI, OPTS, () => {
   console.log("Connected to MONGODB");
 });
 
-passport.use(
-  new localStrategy((username, password, done) => {
-    User.findOne({ username }, async (_err, doc) => {
-      if (doc) {
-        if (doc.password == password) {
-          await User.findOneAndUpdate({ username }, { lastOnline: Date.now() });
-          return done(null, doc);
-        } else {
-          return done(null, false, "bad-password");
-        }
-      } else {
-        return done(null, false, "bad-username");
-      }
-    });
-  })
-);
-
-passport.serializeUser((user, cb) => {
-  cb(null, user.id);
-});
-
-passport.deserializeUser((id, cb) => {
-  User.findOne({ _id: id }, async (err, user) => {
-    // Sednd public facing information only
-    cb(err, await createPersonalFacingUser(user));
-  });
-});
+passportConfiguration(passport);
 
 const sessionMiddleware = session({
   secret: "secretcode",
@@ -89,6 +61,7 @@ const sessionMiddleware = session({
     maxAge: 1000 * 60 * 60 * 24 * 7, // One Week
   },
 });
+
 export const s3 = new S3Client({ region: "us-west-1" });
 
 app.use(sessionMiddleware);
