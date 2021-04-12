@@ -62,7 +62,13 @@ const sessionMiddleware = session({
   },
 });
 
-export const s3 = new S3Client({ region: "us-west-1" });
+export const s3 = new S3Client({
+  region: "us-west-1",
+  credentials: {
+    accessKeyId: "AKIAUNEWDFPB5KYH2CX7",
+    secretAccessKey: "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",
+  },
+});
 
 app.use(sessionMiddleware);
 app.use(express.json());
