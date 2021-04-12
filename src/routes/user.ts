@@ -48,7 +48,7 @@ router.post(
       const { userId } = req.body;
       const KEY_NAME = `userAvatar/${req.file.originalname}`;
 
-      var params = {
+      const params = {
         Bucket: process.env.PROFILE_PICTURES_BUCKET,
         Body: fs.createReadStream(req.file.path),
         Key: KEY_NAME,
