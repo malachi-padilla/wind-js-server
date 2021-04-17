@@ -4,6 +4,10 @@ const user = new mongoose.Schema(
   {
     username: String,
     password: String,
+    email: {
+      type: String,
+      required: false,
+    },
     sentFriendRequests: {
       type: Array,
       required: false,
