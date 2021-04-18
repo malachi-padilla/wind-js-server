@@ -8,6 +8,7 @@ export interface PersonalApplicationUser {
   recievedFriendRequests: string[];
   friends: string[];
   username: string;
+  email: string;
   lastOnline: Date;
   profilePicture: string;
 }

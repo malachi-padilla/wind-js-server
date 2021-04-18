@@ -38,6 +38,20 @@ router.post("/getUsers", generalMiddleware, async (req: any, res) => {
   }
 });
 
+router.post("/updateUserInfo", async (req: any, res) => {
+  try {
+    const { userId } = req.user;
+
+    const { body } = req;
+
+    await User.findByIdAndUpdate(userId, body);
+    res.send("Updated");
+  } catch (e) {
+    console.log(e);
+    res.status(400).send("Error Updating UserInfo");
+  }
+});
+
 router.post(
   "/uploadProfilePicture",
   multer({ dest: "temp/", limits: { fieldSize: 8 * 1024 * 1024 } }).single(

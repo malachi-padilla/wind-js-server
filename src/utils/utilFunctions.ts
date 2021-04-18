@@ -69,6 +69,7 @@ export async function createPersonalFacingUser(
     userId: mongoDBDocument._id,
     friends: mongoDBDocument.friends,
     username: mongoDBDocument.username,
+    email: mongoDBDocument.email,
     sentFriendRequests: mongoDBDocument.sentFriendRequests,
     recievedFriendRequests: mongoDBDocument.recievedFriendRequests,
     lastOnline: mongoDBDocument.lastOnline,
