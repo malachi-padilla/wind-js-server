@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
 
+import mongoose from "mongoose";
 const user = new mongoose.Schema(
   {
-    username: String,
+    username: { type: String, text: true},
     password: String,
     email: {
       type: String,
@@ -32,7 +32,7 @@ const user = new mongoose.Schema(
       type: String,
       required: false,
       default: "",
-    },
+    }
   },
   { timestamps: true }
 );
