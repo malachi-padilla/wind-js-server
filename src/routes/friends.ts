@@ -191,7 +191,7 @@ router.get('/getMutualFriends', async (req, res) => {
 
 router.get('/search', async (req, res) => {
   try {
-    let result: any = await User.aggregate([
+    const result: any = await User.aggregate([
       {
         $search: {
           autocomplete: {
