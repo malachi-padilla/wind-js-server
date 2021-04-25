@@ -1,10 +1,10 @@
-import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { s3 } from "../index";
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { s3 } from '../index';
 import {
   PersonalApplicationUser,
   PublicApplicationUser,
-} from "models/user/types";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+} from 'models/user/types';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // Take a MongoDB Document and Spit Out Public Facing Data.
 export async function createPublicFacingUser(
@@ -15,29 +15,26 @@ export async function createPublicFacingUser(
     let relation;
     if (signedInUser && Object.keys(signedInUser).length > 0) {
       if (signedInUser.sentFriendRequests.includes(mongoDBDocument._id)) {
-        relation = "Requested";
+        relation = 'Requested';
       } else if (
         signedInUser.recievedFriendRequests.includes(mongoDBDocument._id)
       ) {
-        relation = "Recipient Requested";
+        relation = 'Recipient Requested';
       } else if (signedInUser.friends.includes(mongoDBDocument._id)) {
-        relation = "Friends";
+        relation = 'Friends';
       } else {
-        relation = "None";
+        relation = 'None';
       }
     }
 
     let profilePicture: string;
     if (
       mongoDBDocument.profilePicture &&
-      mongoDBDocument.profilePicture !== ""
+      mongoDBDocument.profilePicture !== ''
     ) {
-      profilePicture = await generateS3BucketUrl(
-        process.env.PROFILE_PICTURES_BUCKET,
-        mongoDBDocument.profilePicture
-      );
+      profilePicture = `https://wind-profile-pictures.s3-us-west-1.amazonaws.com/${mongoDBDocument.profilePicture}`;
     } else {
-      profilePicture = "https://source.unsplash.com/random";
+      profilePicture = 'https://source.unsplash.com/random';
     }
 
     resolve({
@@ -56,13 +53,10 @@ export async function createPersonalFacingUser(
 ): Promise<PersonalApplicationUser> {
   let profilePicture: string;
 
-  if (mongoDBDocument.profilePicture && mongoDBDocument.profilePicture !== "") {
-    profilePicture = await generateS3BucketUrl(
-      process.env.PROFILE_PICTURES_BUCKET,
-      mongoDBDocument.profilePicture
-    );
+  if (mongoDBDocument.profilePicture && mongoDBDocument.profilePicture !== '') {
+    profilePicture = `https://wind-profile-pictures.s3-us-west-1.amazonaws.com/${mongoDBDocument.profilePicture}`;
   } else {
-    profilePicture = "https://source.unsplash.com/random";
+    profilePicture = 'https://source.unsplash.com/random';
   }
 
   return {
