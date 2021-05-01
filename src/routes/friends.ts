@@ -1,12 +1,12 @@
-import express from "express";
-import { PublicApplicationUser } from "models/user/types";
-import { createPublicFacingUser } from "../utils/utilFunctions";
+import express from 'express';
+import { PublicApplicationUser } from 'models/user/types';
+import { createPublicFacingUser } from '../utils/utilFunctions';
 // import { PublicApplicationUser } from "models/types";
 const router = express.Router();
-import User from "../models/user/user";
-import { generalMiddleware } from "../middleware/auth";
+import User from '../models/user/user';
+import { generalMiddleware } from '../middleware/auth';
 
-router.post("/friendRequest", generalMiddleware, async (req, res) => {
+router.post('/friendRequest', generalMiddleware, async (req, res) => {
   // User 1 Is Requesting User 2:
   try {
     const { user1, user2 } = req.body;
@@ -16,7 +16,7 @@ router.post("/friendRequest", generalMiddleware, async (req, res) => {
     if (mongoUser1 && mongoUser2) {
       // Check to make sure you arent already friends
       if (mongoUser1.friends.includes(user2)) {
-        res.send("Sorry you are already friends with this user.");
+        res.send('Sorry you are already friends with this user.');
       }
 
       // If he has requested us, make us friends!
@@ -33,7 +33,7 @@ router.post("/friendRequest", generalMiddleware, async (req, res) => {
         });
         await User.findByIdAndUpdate(user1, { $push: { friends: user2 } });
         await User.findByIdAndUpdate(user2, { $push: { friends: user1 } });
-        res.send("Successfully added friend.");
+        res.send('Successfully added friend.');
       }
 
       // If we have never requested him
@@ -47,22 +47,22 @@ router.post("/friendRequest", generalMiddleware, async (req, res) => {
         await User.findByIdAndUpdate(user2, {
           $push: { recievedFriendRequests: user1 },
         });
-        res.send("Friend request sent.");
+        res.send('Friend request sent.');
       }
 
       // only other condition is that they are already in our requests
       else {
-        res.send("You have already requested this person before.");
+        res.send('You have already requested this person before.');
       }
     } else {
       res.status(404).send("User doesn't exist");
     }
   } catch (e) {
-    res.status(422).send("Sorry, Bad Input.");
+    res.status(422).send('Sorry, Bad Input.');
   }
 });
 
-router.delete("/friendRequest", generalMiddleware, async (req, res) => {
+router.delete('/friendRequest', generalMiddleware, async (req, res) => {
   // User 1 Is Requesting To Unfriend User 2:
   try {
     const { user1, user2 } = req.body;
@@ -81,7 +81,7 @@ router.delete("/friendRequest", generalMiddleware, async (req, res) => {
         await User.findByIdAndUpdate(user1, {
           $pullAll: { sentFriendRequests: [user2] },
         });
-        res.send("Successfully unrequested user.");
+        res.send('Successfully unrequested user.');
       }
       // If we are currently friends with the user
       else if (
@@ -102,25 +102,25 @@ router.delete("/friendRequest", generalMiddleware, async (req, res) => {
         await User.findByIdAndUpdate(user2, {
           $push: { sentFriendRequests: user1 },
         });
-        res.send("Successfully unfriended user.");
+        res.send('Successfully unfriended user.');
       } else {
-        res.send("Error, bad request");
+        res.send('Error, bad request');
       }
     } else {
       res.status(404).send("User doesn't exist");
     }
   } catch (e) {
-    res.status(422).send("Sorry, Bad Input.");
+    res.status(422).send('Sorry, Bad Input.');
   }
 });
 
-router.get("/", generalMiddleware, async (req: any, res) => {
+router.get('/', generalMiddleware, async (req: any, res) => {
   // Get all friends of user
   try {
     const { user } = req.query;
     await User.findById(user, async (err, doc) => {
       if (err) {
-        res.status(400).send("Error getting user");
+        res.status(400).send('Error getting user');
       } else {
         if (doc) {
           const { friends } = doc;
@@ -143,27 +143,27 @@ router.get("/", generalMiddleware, async (req: any, res) => {
           }
           res.send(friendsArr);
         } else {
-          res.status(404).send("Not Found");
+          res.status(404).send('Not Found');
         }
       }
     });
   } catch (e) {
-    res.status(422).send("Sorry, Bad Input.");
+    res.status(422).send('Sorry, Bad Input.');
   }
 });
 
-router.get("/getMutualFriends", async (req, res) => {
+router.get('/getMutualFriends', async (req, res) => {
   // Get Mutual Friends between User1 and User2
   try {
     const { user1, user2 } = req.query;
     await User.findById(user1, async (err, doc) => {
       if (err) {
-        res.status(400).send("Error getting user");
+        res.status(400).send('Error getting user');
       } else {
         if (doc) {
           User.findById(user2, async (err, doc2) => {
             if (err) {
-              res.status(400).send("Error getting user");
+              res.status(400).send('Error getting user');
             }
             const user1Friends = doc.friends;
             const user2Friends = doc2.friends;
@@ -180,12 +180,38 @@ router.get("/getMutualFriends", async (req, res) => {
             res.send(mutualFriends);
           });
         } else {
-          res.status(404).send("Not Found");
+          res.status(404).send('Not Found');
         }
       }
     });
   } catch (e) {
-    res.status(422).send("Sorry, Bad Input.");
+    res.status(422).send('Sorry, Bad Input.');
+  }
+});
+
+router.get('/search', async (req, res) => {
+  try {
+    const result: any = await User.aggregate([
+      {
+        $search: {
+          autocomplete: {
+            query: `${req.query.term}`,
+            path: 'username',
+            fuzzy: {
+              maxEdits: 1,
+            },
+          },
+        },
+      },
+    ]);
+    const promises = result.map(async (item) => {
+      return await createPublicFacingUser(item);
+    });
+
+    const searchResults = await Promise.all(promises);
+    res.send(searchResults);
+  } catch (e) {
+    res.status(500).send('Sorry, Bad Input');
   }
 });
 
