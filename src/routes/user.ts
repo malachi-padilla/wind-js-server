@@ -59,12 +59,16 @@ router.post(
   ),
   async (req: any, res) => {
     try {
+      const d = new Date();
       const { userId } = req.body;
-      const KEY_NAME = `userAvatar/${req.file.originalname}`;
+      const KEY_NAME = `userAvatar/${userId}/${d.getTime()}${
+        req.file.originalname
+      }`;
 
       const params = {
         Bucket: process.env.PROFILE_PICTURES_BUCKET,
         Body: fs.createReadStream(req.file.path),
+        ACL: "public-read",
         Key: KEY_NAME,
       };
 
