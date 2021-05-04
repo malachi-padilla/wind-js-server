@@ -1,10 +1,11 @@
-import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { s3 } from '../index';
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { s3 } from "../index";
+import jwt from "jsonwebtoken";
 import {
   PersonalApplicationUser,
   PublicApplicationUser,
-} from 'models/user/types';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+} from "models/user/types";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // Take a MongoDB Document and Spit Out Public Facing Data.
 export async function createPublicFacingUser(
@@ -15,26 +16,26 @@ export async function createPublicFacingUser(
     let relation;
     if (signedInUser && Object.keys(signedInUser).length > 0) {
       if (signedInUser.sentFriendRequests.includes(mongoDBDocument._id)) {
-        relation = 'Requested';
+        relation = "Requested";
       } else if (
         signedInUser.recievedFriendRequests.includes(mongoDBDocument._id)
       ) {
-        relation = 'Recipient Requested';
+        relation = "Recipient Requested";
       } else if (signedInUser.friends.includes(mongoDBDocument._id)) {
-        relation = 'Friends';
+        relation = "Friends";
       } else {
-        relation = 'None';
+        relation = "None";
       }
     }
 
     let profilePicture: string;
     if (
       mongoDBDocument.profilePicture &&
-      mongoDBDocument.profilePicture !== ''
+      mongoDBDocument.profilePicture !== ""
     ) {
       profilePicture = `https://wind-profile-pictures.s3-us-west-1.amazonaws.com/${mongoDBDocument.profilePicture}`;
     } else {
-      profilePicture = 'https://source.unsplash.com/random';
+      profilePicture = "https://source.unsplash.com/random";
     }
 
     resolve({
@@ -53,10 +54,10 @@ export async function createPersonalFacingUser(
 ): Promise<PersonalApplicationUser> {
   let profilePicture: string;
 
-  if (mongoDBDocument.profilePicture && mongoDBDocument.profilePicture !== '') {
+  if (mongoDBDocument.profilePicture && mongoDBDocument.profilePicture !== "") {
     profilePicture = `https://wind-profile-pictures.s3-us-west-1.amazonaws.com/${mongoDBDocument.profilePicture}`;
   } else {
-    profilePicture = 'https://source.unsplash.com/random';
+    profilePicture = "https://source.unsplash.com/random";
   }
 
   return {
@@ -85,4 +86,13 @@ export function generateS3BucketUrl(bucketName, bucketKey): Promise<string> {
       })
       .catch((error) => reject(error));
   });
+}
+
+export async function signJwt(personalFacingUser: PersonalApplicationUser) {
+  const token = jwt.sign(personalFacingUser, process.env.JWT_SIGNING_KEY!, {
+    algorithm: "HS256",
+    expiresIn: 300,
+  });
+
+  return token;
 }

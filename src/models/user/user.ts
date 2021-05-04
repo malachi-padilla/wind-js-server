@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const user = new mongoose.Schema(
   {
     username: { type: String },
@@ -30,9 +30,9 @@ const user = new mongoose.Schema(
     profilePicture: {
       type: String,
       required: false,
-      default: '',
+      default: "",
     },
   },
   { timestamps: true }
 );
-export default mongoose.model('User', user);
+export default mongoose.model("User", user);
