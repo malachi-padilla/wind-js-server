@@ -5,6 +5,7 @@ import {
 } from "../utils/utilFunctions";
 const router = express.Router();
 import User from "../models/user/user";
+import jwt from "jsonwebtoken";
 import { generalMiddleware } from "../middleware/auth";
 import { PublicApplicationUser } from "models/user/types";
 import multer from "multer";
@@ -27,7 +28,16 @@ router.post("/getUsers", generalMiddleware, async (req: any, res) => {
               "Friend we are trying to reach doesn't exist, please contact administrators for help"
             );
         } else {
-          const publicFacingUser = await createPublicFacingUser(user, req.user);
+          const requestingTokenValue: any = jwt.decode(req.cookies?.token);
+
+          const requestingUserInfo = await User.findById(
+            requestingTokenValue.userId
+          );
+          console.log(requestingUserInfo);
+          const publicFacingUser = await createPublicFacingUser(
+            user,
+            requestingUserInfo
+          );
           friendsArr.push(publicFacingUser);
         }
       }
@@ -38,9 +48,9 @@ router.post("/getUsers", generalMiddleware, async (req: any, res) => {
   }
 });
 
-router.post("/updateUserInfo", async (req: any, res) => {
+router.post("/updateUserInfo", generalMiddleware, async (req: any, res) => {
   try {
-    const { userId } = req.user;
+    const { userId } = req.cookies?.token;
 
     const { body } = req;
 
@@ -87,7 +97,7 @@ router.post(
   }
 );
 
-router.get("/getProfilePicture", async (req, res) => {
+router.get("/getProfilePicture", generalMiddleware, async (req, res) => {
   try {
     const { userId, username } = req.query;
 
@@ -121,11 +131,15 @@ router.get("/:userId", generalMiddleware, async (req: any, res) => {
   const { userId } = req.params;
   User.findById(userId, async (err, doc) => {
     if (err) {
-      ``;
       res.status(400).send("Error getting user");
     } else {
       if (doc) {
-        const publicFacingUser = await createPublicFacingUser(doc, req.user);
+        const userClaims: any = jwt.decode(req.cookies?.token);
+        const requesterInfo = await User.findById(userClaims.userId);
+        const publicFacingUser = await createPublicFacingUser(
+          doc,
+          requesterInfo
+        );
         res.send(publicFacingUser);
       } else {
         res.status(404).send("Not Found");
@@ -142,7 +156,9 @@ router.get("/", generalMiddleware, async (req: any, res) => {
       console.log(err);
     } else {
       if (doc) {
-        const publicFacingUser = await createPublicFacingUser(doc, req.user);
+        const userClaims: any = jwt.decode(req.cookies?.token);
+        const userData = await User.findById(userClaims.userId);
+        const publicFacingUser = await createPublicFacingUser(doc, userData);
         res.send(publicFacingUser);
       } else {
         res.status(404).send("Not Found");

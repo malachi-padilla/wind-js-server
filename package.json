@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node build/index.js",
     "dev": "concurrently \"nodemon --exec ts-node src/index.ts\" \"cd ../wind-rust-server && cargo watch -x run -w ./src/main.rs\"",
+    "only-js-server": "nodemon --exec ts-node src/index.ts",
     "build": "yarn install",
     "heroku-postbuild": "tsc --build",
     "lint": "./node_modules/.bin/eslint --ext .jsx --ext .js --ext .ts --ext .tsx ./src"
@@ -16,12 +17,16 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.12.0",
     "@aws-sdk/s3-request-presigner": "^3.12.0",
+    "@types/jsonwebtoken": "^8.5.1",
+    "axios": "^0.21.1",
+    "concurrently": "^6.0.2",
     "connect-mongodb-session": "^2.4.1",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.1",
     "multer": "^1.4.2",
     "passport": "^0.4.1",

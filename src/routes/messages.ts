@@ -1,3 +1,4 @@
+import axios from "axios";
 import express from "express";
 import { generalMiddleware } from "../middleware/auth";
 const router = express.Router();
@@ -24,7 +25,7 @@ router.get("/getMessages", generalMiddleware, async (req, res) => {
 
 export default router;
 
-router.get("/recentlyMessaged", async (req, res) => {
+router.get("/recentlyMessaged", generalMiddleware, async (req, res) => {
   // get last 10 recently messaged from username
   const { user } = req.query;
 
@@ -51,5 +52,18 @@ router.get("/recentlyMessaged", async (req, res) => {
 
   const uniq = [...new Set(revisedInformation)];
 
-  res.send(uniq);
+  const promises = uniq.map(async (item) => {
+    const profilePictureLink = await axios.get(
+      `http://localhost:8080/getProfilePicture?username=${item}`
+    );
+
+    return {
+      username: item,
+      profilePicture: profilePictureLink.data,
+    };
+  });
+
+  const total = await Promise.all(promises);
+
+  res.send(total);
 });
