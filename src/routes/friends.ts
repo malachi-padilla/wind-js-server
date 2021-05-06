@@ -135,9 +135,11 @@ router.get("/", generalMiddleware, async (req: any, res) => {
                   "Friend doesn't exist, please contact administrators for help"
                 );
             } else {
+              const requesterClaims: any = jwt.decode(req.cookies?.token);
+              const requesterInfo = await User.findById(requesterClaims.userId);
               const publicFacingUser = await createPublicFacingUser(
                 user,
-                jwt.decode(req.cookies?.token)
+                requesterInfo
               );
               friendsArr.push(publicFacingUser);
             }

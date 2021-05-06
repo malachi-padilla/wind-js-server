@@ -88,8 +88,8 @@ export function generateS3BucketUrl(bucketName, bucketKey): Promise<string> {
   });
 }
 
-export async function signJwt(personalFacingUser: PersonalApplicationUser) {
-  const token = jwt.sign(personalFacingUser, process.env.JWT_SIGNING_KEY!, {
+export async function signJwt(userId: string) {
+  const token = jwt.sign({ userId }, process.env.JWT_SIGNING_KEY!, {
     algorithm: "HS256",
     expiresIn: 300,
   });

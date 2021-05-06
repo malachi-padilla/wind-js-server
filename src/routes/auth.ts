@@ -22,7 +22,7 @@ router.post("/login", (req: any, res, next) => {
     if (user) {
       req.logIn(user, async function () {
         const publicUser = await createPersonalFacingUser(user);
-        let token = await signJwt(publicUser);
+        const token = await signJwt(publicUser.userId);
         res.cookie("token", token, {
           maxAge: 500000000000,
         });
@@ -35,9 +35,14 @@ router.post("/login", (req: any, res, next) => {
   })(req, res, next);
 });
 
-router.get("/user", (req: any, res) => {
+router.get("/user", async (req: any, res) => {
   if (req.cookies?.token) {
-    res.send(jwt.decode(req.cookies.token));
+    const claims: any = jwt.decode(req.cookies.token);
+
+    const user = await createPersonalFacingUser(
+      await User.findById(claims.userId)
+    );
+    res.send(user);
   } else {
     res.send("no user");
   }
@@ -56,7 +61,7 @@ router.post("/refreshToken", async (req, res) => {
     return res.status(401).end();
   }
 
-  var payload: any = jwt.decode(token);
+  const payload: any = jwt.decode(token);
 
   const nowUnixSeconds = Math.round(Number(new Date()) / 1000);
   if (payload.exp - nowUnixSeconds > 30) {
@@ -65,7 +70,7 @@ router.post("/refreshToken", async (req, res) => {
   delete payload.exp;
   delete payload.iat;
 
-  let newToken = await signJwt(payload);
+  const newToken = await signJwt(payload.userId);
 
   res.cookie("token", newToken, {
     maxAge: 50000000000,

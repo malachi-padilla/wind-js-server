@@ -30,7 +30,7 @@ export async function verifyJwt(req) {
 
 export async function generalMiddleware(req, res, next) {
   await updateLastOnline(req, res, next);
-  let jwtResult = await verifyJwt(req);
+  const jwtResult = await verifyJwt(req);
   if (jwtResult === "Expired Token") {
     res.status(401).send("Expired Token");
   } else if (jwtResult === "Invalid Token") {

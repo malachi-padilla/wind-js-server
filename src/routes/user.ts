@@ -28,10 +28,15 @@ router.post("/getUsers", generalMiddleware, async (req: any, res) => {
               "Friend we are trying to reach doesn't exist, please contact administrators for help"
             );
         } else {
-          const requestersInfo = jwt.decode(req.cookies?.token);
+          const requestingTokenValue: any = jwt.decode(req.cookies?.token);
+
+          const requestingUserInfo = await User.findById(
+            requestingTokenValue.userId
+          );
+          console.log(requestingUserInfo);
           const publicFacingUser = await createPublicFacingUser(
             user,
-            requestersInfo
+            requestingUserInfo
           );
           friendsArr.push(publicFacingUser);
         }
@@ -126,14 +131,14 @@ router.get("/:userId", generalMiddleware, async (req: any, res) => {
   const { userId } = req.params;
   User.findById(userId, async (err, doc) => {
     if (err) {
-      ``;
       res.status(400).send("Error getting user");
     } else {
       if (doc) {
-        const requestersInfo = jwt.decode(req.cookies?.token);
+        const userClaims: any = jwt.decode(req.cookies?.token);
+        const requesterInfo = await User.findById(userClaims.userId);
         const publicFacingUser = await createPublicFacingUser(
           doc,
-          requestersInfo
+          requesterInfo
         );
         res.send(publicFacingUser);
       } else {
@@ -151,8 +156,9 @@ router.get("/", generalMiddleware, async (req: any, res) => {
       console.log(err);
     } else {
       if (doc) {
-        const userInfo = jwt.decode(req.cookies?.token);
-        const publicFacingUser = await createPublicFacingUser(doc, userInfo);
+        const userClaims: any = jwt.decode(req.cookies?.token);
+        const userData = await User.findById(userClaims.userId);
+        const publicFacingUser = await createPublicFacingUser(doc, userData);
         res.send(publicFacingUser);
       } else {
         res.status(404).send("Not Found");
