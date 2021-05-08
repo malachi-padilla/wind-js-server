@@ -50,6 +50,9 @@ router.get("/user", async (req: any, res) => {
 
 router.get("/logout", (req: any, res) => {
   req.logout();
+  res.cookie("token", "", {
+    expires: new Date(),
+  });
   res.send("success");
 });
 

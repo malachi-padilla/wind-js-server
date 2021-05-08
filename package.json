@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node build/index.js",
-    "dev": "concurrently \"nodemon --exec ts-node src/index.ts\" \"cd ../wind-rust-server && cargo watch -x run -w ./src/main.rs\"",
+    "dev": "concurrently \"nodemon --exec ts-node src/index.ts\" \"cd ../wind-rust-server && cargo watch -x run\"",
     "only-js-server": "nodemon --exec ts-node src/index.ts",
     "build": "yarn install",
     "heroku-postbuild": "tsc --build",
